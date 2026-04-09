@@ -1,46 +1,68 @@
-
-
-public class Solution {
-    public List<List<String>> solveNQueens(int n) {
-        List<List<String>> res = new ArrayList<>();
-        char[][] board = new char[n][n];
-        
-        // initialize board
-        for(int i=0;i<n;i++)
-            Arrays.fill(board[i], '.');
-        
-        boolean[] col = new boolean[n];
-        boolean[] diag1 = new boolean[2*n-1];
-        boolean[] diag2 = new boolean[2*n-1];
-        
-        backtrack(0, n, board, col, diag1, diag2, res);
-        return res;
-    }
+class Solution {
     
-    private void backtrack(int row, int n, char[][] board, boolean[] col, boolean[] diag1, boolean[] diag2, List<List<String>> res) {
-        if(row == n){
-            List<String> temp = new ArrayList<>();
-            for(int i=0;i<n;i++)
-                temp.add(new String(board[i]));
-            res.add(temp);
+    private boolean isSafePlace(int n, char[][] nQueens, int row, int col) {
+        
+        for (int i = 0; i < n; i++) {
+            if (nQueens[i][col] == 'Q') {
+                return false;
+            }
+        }
+
+        
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (nQueens[i][j] == 'Q') {
+                return false;
+            }
+        }
+
+        
+        for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if (nQueens[i][j] == 'Q') {
+                return false;
+            }
+        }
+
+        
+        return true;
+    }
+
+
+    private void solveNQueens(int n, List<List<String>> output, char[][] nQueens, int row) {
+        
+        if (row == n) {
+            List<String> solution = new ArrayList<>();
+            for (char[] rowArray : nQueens) {
+                solution.add(new String(rowArray));
+            }
+            output.add(solution);
             return;
         }
+
         
-        for(int j=0;j<n;j++){
-            if(col[j] || diag1[row+j] || diag2[row-j+n-1])
-                continue;
+        for (int col = 0; col < n; col++) {
             
-            board[row][j] = 'Q';
-            col[j] = true;
-            diag1[row+j] = true;
-            diag2[row-j+n-1] = true;
-            
-            backtrack(row+1, n, board, col, diag1, diag2, res);
-            
-            board[row][j] = '.';
-            col[j] = false;
-            diag1[row+j] = false;
-            diag2[row-j+n-1] = false;
+            if (isSafePlace(n, nQueens, row, col)) {
+                
+                nQueens[row][col] = 'Q';
+                
+                solveNQueens(n, output, nQueens, row + 1);
+                
+                nQueens[row][col] = '.';
+            }
         }
+    }
+
+    
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> output = new ArrayList<>();  
+        char[][] nQueens = new char[n][n]; 
+        
+        
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(nQueens[i], '.');
+        }
+        
+        solveNQueens(n, output, nQueens, 0); 
+        return output;
     }
 }
